@@ -1,0 +1,12 @@
+F:\Program Files (x86)\Steam\SteamApps\common\RimWorld\Mods\Stuffable Prosthetics\Source\StuffableProsthetics\obj\Debug\StuffableCore.csproj.AssemblyReference.cache
+F:\Program Files (x86)\Steam\SteamApps\common\RimWorld\Mods\Stuffable Prosthetics\Source\StuffableProsthetics\obj\Debug\StuffableCore.csproj.CoreCompileInputs.cache
+F:\Program Files (x86)\Steam\SteamApps\common\RimWorld\Mods\Stuffable Prosthetics\Source\StuffableProsthetics\obj\Debug\StuffableCore.dll
+F:\Program Files (x86)\Steam\SteamApps\common\RimWorld\Mods\Stuffable Prosthetics\Source\StuffableProsthetics\obj\Debug\StuffableCore.pdb
+F:\Program Files (x86)\Steam\SteamApps\common\RimWorld\Mods\Stuffable Prosthetics\1.4\Assemblies\StuffableCore.dll
+F:\Program Files (x86)\Steam\SteamApps\common\RimWorld\Mods\Stuffable Prosthetics\1.4\Assemblies\StuffableCore.pdb
+F:\Program Files (x86)\Steam\SteamApps\common\RimWorld\Mods\StuffableCore\1.4\Assemblies\StuffableCore.dll
+F:\Program Files (x86)\Steam\SteamApps\common\RimWorld\Mods\StuffableCore\1.4\Assemblies\StuffableCore.pdb
+C:\Users\michael\Desktop\StuffableCore_Source\Source\StuffableProsthetics\obj\Debug\StuffableCore.csproj.AssemblyReference.cache
+C:\Users\michael\Desktop\StuffableCore_Source\Source\StuffableProsthetics\obj\Debug\StuffableCore.csproj.CoreCompileInputs.cache
+C:\Users\michael\Desktop\StuffableCore_Source\Source\StuffableProsthetics\obj\Debug\StuffableCore.dll
+C:\Users\michael\Desktop\StuffableCore_Source\Source\StuffableProsthetics\obj\Debug\StuffableCore.pdb
