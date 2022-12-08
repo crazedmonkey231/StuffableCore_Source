@@ -11,7 +11,7 @@ using Verse;
 namespace StuffableCore.Settings
 {
 
-    internal class MeleeSettings : StuffableCategorySettings
+    public class MeleeSettings : StuffableCategorySettings
     {
         public MeleeSettings()
         {
@@ -47,7 +47,7 @@ namespace StuffableCore.Settings
         }
     }
 
-    internal class RangedSettings : StuffableCategorySettings
+    public class RangedSettings : StuffableCategorySettings
     {
         public RangedSettings()
         {
@@ -83,7 +83,7 @@ namespace StuffableCore.Settings
         }
     }
 
-    internal class WeaponSettings : StuffableCategorySettings, ISettings, IExposable
+    public class WeaponSettings : StuffableCategorySettings, ISettings, IExposable
     {
 
         public WeaponSettings()

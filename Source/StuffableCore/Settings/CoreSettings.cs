@@ -8,7 +8,7 @@ using Verse;
 
 namespace StuffableCore.Settings
 {
-    internal class CoreSettings : BaseSettings, ISettings, IExposable
+    public class CoreSettings : BaseSettings, ISettings, IExposable
     {
 
         public bool modEnabled = true;
@@ -16,7 +16,6 @@ namespace StuffableCore.Settings
         public bool toggleAllOff = false;
         public bool resetToDefaults = true;
         public bool enableRawFoodStuffs = false;
-
 
         public bool clearCache = false;
 

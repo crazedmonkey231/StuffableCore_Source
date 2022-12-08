@@ -16,7 +16,7 @@ using Verse.Noise;
 
 namespace StuffableCore
 {
-    internal class StuffableCoreMod : Mod
+    public class StuffableCoreMod : Mod
     {
         public static Harmony harmony;
         public static StuffableCoreSettings settings;
@@ -54,7 +54,7 @@ namespace StuffableCore
             harmony = new Harmony(Content.Name);
             harmony.PatchAll(Assembly.GetExecutingAssembly());
             settings = GetSettings<StuffableCoreSettings>();
-
+            
             if (settings.CoreSettings.modEnabled)
             {
                 if (settings.ImplantProstheticSettings.enabled)
@@ -76,6 +76,7 @@ namespace StuffableCore
 
         public static void Main()
         {
+
             IEnumerable<StuffCategoryDef> cacheStuffCategoryDef = DefDatabase<StuffCategoryDef>.AllDefs.Where(i => IsRawEnabled(i));
 
             IEnumerable<ThingDef> stuffableStuff = DefDatabase<ThingDef>.AllDefs.Where(i =>
@@ -85,8 +86,8 @@ namespace StuffableCore
                 if (flag.HasValue)
                     flagVal = flag.Value;
 
-                return i.techHediffsTags.NotNullAndContains(StuffableCoreConstants.stuffableTag) 
-                    || i.weaponTags.NotNullAndContains(StuffableCoreConstants.stuffableTag) 
+                return i.techHediffsTags.NotNullAndContains(StuffableCoreConstants.stuffableTag)
+                    || i.weaponTags.NotNullAndContains(StuffableCoreConstants.stuffableTag)
                     || flagVal;
             });
 
@@ -110,16 +111,24 @@ namespace StuffableCore
 
                     if (thingdef.stuffProps.categories == null)
                         thingdef.stuffProps.categories = new List<StuffCategoryDef>();
-                    thingdef.stuffProps.categories.Add(StuffableCoreDefOf.Raw);
+                    thingdef.stuffProps.categories.Add(StuffableCoreDefOf.StuffableCore_RawStuff);
                     thingdef.stuffProps.canSuggestUseDefaultStuff = true;
                     thingdef.stuffProps.color = thingdef.GetColorForStuff(thingdef);
 
                 }
             }
+
             if (!stuffableStuff.EnumerableNullOrEmpty())
             {
-                if(settings.ImplantProstheticSettings.enabled)
+                if (settings.ImplantProstheticSettings.enabled)
                 {
+                    foreach (HediffDef hediffDef in DefDatabase<HediffDef>.AllDefsListForReading.Where(i => i.tags != null && i.tags.Contains(StuffableCoreConstants.stuffableHediff)))
+                    {
+                        if (hediffDef.comps == null)
+                            hediffDef.comps = new List<HediffCompProperties>();
+                        hediffDef.comps.Add(new HediffCompProperties_Stuffable());
+                    }
+                        
                     RunManager(cacheStuffCategoryDef, stuffableStuff, StuffableCoreConstants.stuffableBodyPartTag, settings.ImplantProstheticSettings);
                 }
 
@@ -130,7 +139,7 @@ namespace StuffableCore
                     RunManager(cacheStuffCategoryDef, stuffableStuff, StuffableCoreConstants.StuffableWeaponRanged, settings.RangedSettings);
                 }
 
-                if(settings.ClothingAndArmorSettings.enabled)
+                if (settings.ClothingAndArmorSettings.enabled)
                 {
 
                     RunManager(cacheStuffCategoryDef, stuffableStuff, StuffableCoreConstants.StuffableWeapon, settings.ClothingAndArmorSettings);
@@ -201,7 +210,7 @@ namespace StuffableCore
         private static bool IsRawEnabled(StuffCategoryDef i)
         {
             bool flag = true;
-            if (!settings.CoreSettings.enableRawFoodStuffs && StuffableCoreDefOf.Raw.Equals(i))
+            if (!settings.CoreSettings.enableRawFoodStuffs && StuffableCoreDefOf.StuffableCore_RawStuff.Equals(i))
                 flag = false;
             return flag;
         }
@@ -239,7 +248,7 @@ namespace StuffableCore
                     thingdef.stuffCategories.Add(i);
             });
             categorySettings.UpdateThingDef(thingdef);
-            UpdateCost(thingdef, categorySettings.defaultStuffCost);
+            UpdateCost(thingdef, categorySettings.DefaultStuffCost);
             UpdateScenarioItem(thingdef, categorySettings);
         }
 
@@ -274,7 +283,7 @@ namespace StuffableCore
                 thingdef.stuffCategories.Clear();
         }
 
-        private static void UpdateCost(ThingDef thingdef, float defalutStuffCost)
+        private static void UpdateCost(ThingDef thingdef, int defalutStuffCost)
         {
             if (thingdef.costList != null && !thingdef.costList.NullOrEmpty())
             {
@@ -285,7 +294,7 @@ namespace StuffableCore
             }
         }
 
-        private static void FindCostItem(ThingDef thingdef, List<ThingDef> filter, float defalutStuffCost)
+        private static void FindCostItem(ThingDef thingdef, List<ThingDef> filter, int defaultStuffCost)
         {
             int newStuffCostCount = 0;
             int currentCost = thingdef.costStuffCount;
@@ -297,7 +306,7 @@ namespace StuffableCore
                 newStuffCostCount = UpdateCostList(thingdef, newStuffCostCount, index);
                 newStuffCostCount += currentCost;
             }
-            thingdef.costStuffCount = newStuffCostCount > 0 ? newStuffCostCount : (int)defalutStuffCost * 100;
+            thingdef.costStuffCount = newStuffCostCount > 0 ? newStuffCostCount : defaultStuffCost;
         }
 
         private static int UpdateCostList(ThingDef thingdef, int newStuffCostCount, int index)
@@ -356,5 +365,6 @@ namespace StuffableCore
         {
             base.WriteSettings();
         }
+
     }
 }

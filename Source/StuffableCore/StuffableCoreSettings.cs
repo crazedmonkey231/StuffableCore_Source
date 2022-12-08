@@ -12,7 +12,7 @@ using Verse;
 namespace StuffableCore
 {
     [StaticConstructorOnStartup]
-    internal class StuffableCoreSettings : ModSettings
+    public class StuffableCoreSettings : ModSettings
     {
 
         public CoreSettings CoreSettings = new CoreSettings();

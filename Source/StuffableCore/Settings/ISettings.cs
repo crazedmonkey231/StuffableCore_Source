@@ -2,7 +2,7 @@
 
 namespace StuffableCore.Settings
 {
-    internal interface ISettings
+    public interface ISettings
     {
         void GetSettings(Listing_Standard listing_Standard);
     }

@@ -11,6 +11,6 @@ namespace StuffableCore
     [DefOf]
     internal class StuffableCoreDefOf
     {
-        public static StuffCategoryDef Raw;
+        public static StuffCategoryDef StuffableCore_RawStuff;
     }
 }

@@ -13,6 +13,7 @@ namespace StuffableCore
 
     internal static class RecipeWorker_Harmony_Patch
     {
+
         public static void ApplyOnPawnPostfix(RecipeWorker __instance, Pawn pawn, BodyPartRecord part, Pawn billDoer, List<Thing> ingredients, Bill bill)
         {
             Log.Message("Adding apply on pawn.");
@@ -23,7 +24,7 @@ namespace StuffableCore
 
             HediffWithComps hediff = (HediffWithComps)pawn.health.hediffSet.hediffs.FindLast(x => x.def == __instance.recipe.addsHediff);
 
-            if(hediff != null && hediff.TryGetComp<HediffCompStuffable>() == null)
+            if (hediff != null && hediff.TryGetComp<HediffCompStuffable>() != null)
             {
                 Log.Message("Needs Hediff comp.");
                 ThingDef stuff = null;
@@ -42,17 +43,8 @@ namespace StuffableCore
                 if (needDefault)
                     stuff = ThingDefOf.Steel;
 
-                if (hediff != null)
-                {
+                hediff.TryGetComp<HediffCompStuffable>().stuff = stuff;
 
-                    HediffCompStuffable comp = new HediffCompStuffable
-                    {
-                        stuff = stuff,
-                    };
-                    if (hediff.comps == null)
-                        hediff.comps = new List<HediffComp>();
-                    hediff.comps.Add(comp);
-                }
             }
         }
     }

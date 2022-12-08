@@ -7,10 +7,11 @@ using Verse.Noise;
 
 namespace StuffableCore
 {
-    internal static class StuffableCoreConstants
+    public static class StuffableCoreConstants
     {
         public const string stuffableTag = "Stuffable";
         public const string stuffableBodyPartTag = "StuffableBodyPart";
+        public const string stuffableHediff = "StuffableHediff";
         public const string StuffableWeapon = "StuffableWeapon";
         public const string StuffableWeaponMelee = "StuffableWeaponMelee";
         public const string StuffableWeaponRanged = "StuffableWeaponRanged";

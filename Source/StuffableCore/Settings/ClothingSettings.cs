@@ -9,7 +9,7 @@ using Verse;
 
 namespace StuffableCore.Settings
 {
-    internal class ClothingSettings : StuffableCategorySettings
+    public class ClothingSettings : StuffableCategorySettings
     {
         public ClothingSettings()
         {
@@ -50,7 +50,7 @@ namespace StuffableCore.Settings
         }
     }
 
-    internal class ArmorSettings : StuffableCategorySettings
+    public class ArmorSettings : StuffableCategorySettings
     {
         public ArmorSettings()
         {
@@ -89,7 +89,7 @@ namespace StuffableCore.Settings
         }
     }
 
-    internal class ClothingAndArmorSettings : StuffableCategorySettings, ISettings
+    public class ClothingAndArmorSettings : StuffableCategorySettings, ISettings
     {
 
         public ClothingAndArmorSettings()

@@ -7,7 +7,7 @@ using Verse;
 
 namespace StuffableCore.Settings
 {
-    internal abstract class BaseSettings
+    public abstract class BaseSettings
     {
         public string settingsLabel = "";
 

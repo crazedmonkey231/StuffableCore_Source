@@ -1,0 +1,8 @@
+C:\Users\michael\Desktop\StuffableCore_Source\Source\VEFPirateAddOn\obj\Debug\VEFPirateAddOn.csproj.AssemblyReference.cache
+C:\Users\michael\Desktop\StuffableCore_Source\Source\VEFPirateAddOn\obj\Debug\VEFPirateAddOn.csproj.CoreCompileInputs.cache
+C:\Users\michael\Desktop\StuffableCore_Source\Source\VEFPirateAddOn\obj\Debug\VEFPirateAddOn.dll
+C:\Users\michael\Desktop\StuffableCore_Source\Source\VEFPirateAddOn\obj\Debug\VEFPirateAddOn.pdb
+C:\Users\michael\Desktop\StuffableCore_Source\Source\VEFPirateAddOn.dll
+C:\Users\michael\Desktop\StuffableCore_Source\Source\VEFPirateAddOn.pdb
+F:\Program Files (x86)\Steam\SteamApps\common\RimWorld\Mods\StuffableCore\1.4\Assemblies\VEFPirateAddOn.dll
+F:\Program Files (x86)\Steam\SteamApps\common\RimWorld\Mods\StuffableCore\1.4\Assemblies\VEFPirateAddOn.pdb

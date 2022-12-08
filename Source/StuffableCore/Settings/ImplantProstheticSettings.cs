@@ -8,7 +8,7 @@ using Verse;
 
 namespace StuffableCore.Settings
 {
-    internal class ImplantProstheticSettings : StuffableCategorySettings, ISettings
+    public class ImplantProstheticSettings : StuffableCategorySettings, ISettings
     {
         public ImplantProstheticSettings()
         {

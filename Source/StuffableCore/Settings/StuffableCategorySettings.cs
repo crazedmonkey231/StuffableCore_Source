@@ -8,7 +8,7 @@ using Verse;
 
 namespace StuffableCore.Settings
 {
-    internal class StuffableCategorySettings : BaseSettings, IExposable
+    public class StuffableCategorySettings : BaseSettings, IExposable
     {
         public bool enabled = false;
         public bool altSearch = false;
@@ -26,11 +26,18 @@ namespace StuffableCore.Settings
         public Dictionary<string, string> stuffCategoriesDescription = new Dictionary<string, string>();
         public Dictionary<string, string> stuffCategoriesModName = new Dictionary<string, string>();
 
+        public int DefaultStuffCost { get => (int) (defaultStuffCost * 100); }
+
         public virtual void GetSettings(Listing_Standard listingStandard)
         {
             GetSettingsHeader(listingStandard);
             string label = "Default stuff cost: {0}".Formatted(defaultStuffCost * 100);
             defaultStuffCost = listingStandard.SliderLabeled(label, defaultStuffCost, 0.01f, 1f);
+        }
+
+        public virtual ThingDef GetDefaultStuffFor(ThingDef thingdef)
+        {
+            return DefDatabase<ThingDef>.GetNamedSilentFail(stuffCategoriesSetting.RandomElement().Key);
         }
 
         public virtual void SetSettings(string key, bool enabled, string description, string fromModName)
@@ -100,6 +107,7 @@ namespace StuffableCore.Settings
                 listing_Standard.GapLine();
             }
         }
+
         public void DropDown(Listing_Standard listingStandard)
         {
             listingStandard.GapLine();
