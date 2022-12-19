@@ -1,4 +1,5 @@
 ﻿using RimWorld;
+using StuffableCore;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -27,7 +28,7 @@ namespace VEFPirateAddOn
         {
             if (!warcasketStuff.TryGetValue(item.defName, out ThingDef value))
             {
-                ThingDef defaultStuff = GenStuff.AllowedStuffsFor(item).RandomElement();
+                ThingDef defaultStuff = SCMod.settings.ArmorSettings.GetDefaultStuffFor(item);
                 AddStuff(item.defName, defaultStuff);
                 return defaultStuff;
             }

@@ -1,11 +1,16 @@
 ﻿using HarmonyLib;
 using RimWorld;
+using StuffableCore.SCCaching;
+using StuffableCore.SCUtils;
+using StuffableCore.Settings.Editor;
 using System;
 using System.Collections.Generic;
+using System.ComponentModel;
 using System.Linq;
 using System.Runtime;
 using System.Text;
 using System.Threading.Tasks;
+using UnityEngine;
 using Verse;
 
 namespace StuffableCore.Settings
@@ -15,21 +20,20 @@ namespace StuffableCore.Settings
     {
         public MeleeSettings()
         {
-            settingsLabel = "Melee Settings";
-            enabled = true;
-            altSearch = true;
+            SettingsLabel = "Bulk melee weapon settings";
         }
 
-        public override void GetSettings(Listing_Standard listingStandard)
+        public override bool ApplySearch(ThingDef item)
         {
-            listingStandard.CheckboxLabeled("Melee settings dropdown {0}".Formatted(meleeSettingsToggle ? "▲" : "▼"), ref meleeSettingsToggle, "Melee settings dropdown.");
-            if (meleeSettingsToggle)
-                DropDown(listingStandard);
+            bool flag = item.weaponTags.NotNullAndContains(SCConstants.StuffableWeaponMelee) && !SearchUtil.IsMechWeapon(item);
+            if (flag)
+                CacheUtil.AddToCache(item.defName, item, StuffTagCache.WeaponsCache);
+            return flag;
         }
 
         public override bool ApplyAltSearch(ThingDef item)
         {
-            bool flag1 = item.weaponTags.NotNullAndContains(StuffableCoreConstants.StuffableWeaponMelee);
+            bool flag1 = !item.weaponTags.NotNullAndContains(SCConstants.StuffableWeaponMelee);
             bool flag2 = !item.thingCategories.NotNullAndContains(ThingCategoryDefOf.ResourcesRaw);
             bool flag3 = false;
             bool flag4 = !item.IsDrug;
@@ -42,31 +46,33 @@ namespace StuffableCore.Settings
                     flag3 = name.Contains("Melee") || name.Contains("MeleePiercer") || name.Contains("MeleeBlunt");
                 });
             }
-            
-            return item.IsMeleeWeapon && flag1 && flag2 && flag3 && flag4;
+            bool flag = item.IsMeleeWeapon && flag1 && flag2 && flag3 && flag4 && !SearchUtil.IsMechWeapon(item) && item.recipeMaker != null;
+            if (flag)
+                CacheUtil.AddToCache(item.defName, item, StuffTagCache.WeaponsCache);
+            return flag;
         }
     }
 
     public class RangedSettings : StuffableCategorySettings
     {
+
         public RangedSettings()
         {
-            settingsLabel = "Ranged Settings";
-            enabled = true;
-            altSearch = true;
+            SettingsLabel = "Bulk ranged weapon settings";
         }
 
-        public override void GetSettings(Listing_Standard listingStandard)
+        public override bool ApplySearch(ThingDef item)
         {
-            listingStandard.CheckboxLabeled("Ranged settings dropdown {0}".Formatted(rangedSettingsToggle ? "▲" : "▼"), ref rangedSettingsToggle, "Ranged settings dropdown.");
-            if (rangedSettingsToggle)
-                DropDown(listingStandard);
+            bool flag = item.weaponTags.NotNullAndContains(SCConstants.StuffableWeaponRanged) && !SearchUtil.IsMechWeapon(item);
+            if (flag)
+                CacheUtil.AddToCache(item.defName, item, StuffTagCache.WeaponsCache);
+            return flag;
         }
 
         public override bool ApplyAltSearch(ThingDef item)
         {
             
-            bool flag1 = item.weaponTags.NotNullAndContains(StuffableCoreConstants.StuffableWeaponRanged);
+            bool flag1 = !item.weaponTags.NotNullAndContains(SCConstants.StuffableWeaponRanged);
             bool flag2 = !item.thingCategories.NotNullAndContains(ThingCategoryDefOf.ResourcesRaw);
             bool flag3 = false;
             bool flag4 = !item.IsDrug;
@@ -78,37 +84,36 @@ namespace StuffableCore.Settings
                     flag3 = name.Contains("Ranged") || name.Contains("RangedHeavy") || name.Contains("RangedLight");
                 });
             }
-
-            return item.IsRangedWeapon && flag1 && flag2 && flag4 || flag3;
+            bool flag = (item.IsRangedWeapon && flag1 && flag2 && flag4 || flag3) && SearchUtil.IsNotTurret(item) && !SearchUtil.IsMechWeapon(item) && item.recipeMaker != null;
+            if (flag)
+                CacheUtil.AddToCache(item.defName, item, StuffTagCache.WeaponsCache);
+            return flag;
         }
     }
 
-    public class WeaponSettings : StuffableCategorySettings, ISettings, IExposable
+    public class WeaponSettings : StuffableCategorySettings
     {
 
         public WeaponSettings()
         {
-            settingsLabel = "Weapon Settings";
+            SettingsLabel = "Catch-all melee/ranged weapon settings";
         }
 
-        public override void GetSettings(Listing_Standard listingStandard)
+        public override bool ApplySearch(ThingDef item)
         {
-            base.GetSettings(listingStandard);
-            StuffableCoreMod.settings.MeleeSettings.GetSettings(listingStandard);
-            StuffableCoreMod.settings.RangedSettings.GetSettings(listingStandard);
-            listingStandard.CheckboxLabeled("Catch-all settings dropdown. {0}".Formatted(otherWeaponSettingsToggle ? "▲" : "▼"), ref otherWeaponSettingsToggle, StuffableCoreConstants.CatchAllToolTip);
-            if (otherWeaponSettingsToggle)
-                DropDown(listingStandard);
+            return false;
         }
 
         public override bool ApplyAltSearch(ThingDef item)
         {
-            bool flag1 = !item.weaponTags.NotNullAndContains(StuffableCoreConstants.StuffableWeapon)
-                && !item.weaponTags.NotNullAndContains(StuffableCoreConstants.StuffableWeaponMelee)
-                && !item.weaponTags.NotNullAndContains(StuffableCoreConstants.StuffableWeaponRanged);
+            bool flag1 = SearchUtil.IsNotSCWeapon(item) && SearchUtil.IsNotTurret(item);
             bool flag2 = !item.thingCategories.NotNullAndContains(ThingCategoryDefOf.ResourcesRaw);
             bool flag3 = !item.IsDrug;
-            return (item.IsRangedWeapon || item.IsMeleeWeapon) && flag1 && flag2 && flag3;
+            bool flag4 = !SearchUtil.IsMechWeapon(item);
+            bool flag = (item.IsRangedWeapon || item.IsMeleeWeapon) && flag1 && flag2 && flag3 && flag4 && item.recipeMaker != null;
+            if (flag)
+                CacheUtil.AddToCache(item.defName, item, StuffTagCache.WeaponsCache);
+            return flag;
         }
     }
 }

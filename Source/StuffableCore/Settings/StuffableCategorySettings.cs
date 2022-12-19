@@ -1,16 +1,20 @@
 ﻿using RimWorld;
+using StuffableCore.SCCaching;
+using StuffableCore.SCUtils;
 using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using UnityEngine;
 using Verse;
 
 namespace StuffableCore.Settings
 {
-    public class StuffableCategorySettings : BaseSettings, IExposable
+    public class StuffableCategorySettings : BaseSettings
     {
         public bool enabled = false;
+        public bool usesAltSearch = true;
         public bool altSearch = false;
         public bool rangedSettingsToggle = false;
         public bool meleeSettingsToggle = false;
@@ -18,21 +22,140 @@ namespace StuffableCore.Settings
         public bool clothingSettingsToggle = false;
         public bool armorSettingsToggle = false;
         public bool otherClothingToggle = false;
+        public bool usesAdditionalStuffMultiplierArmor = false;
         public float additionalStuffMultiplierArmor = 0.1f;
         public float additionalStuffMultiplierDamageSharp = 0.1f;
         public float defaultStuffCost = 0.25f;
+
+        private float defaultCostMin = 0.01f;
+        private float defaultCostMax = 2.5f;
+        public bool useDefaultCostInstead = false;
         public bool useRawPlantForStuff = false;
-        public Dictionary<string, bool> stuffCategoriesSetting = new Dictionary<string, bool>();
-        public Dictionary<string, string> stuffCategoriesDescription = new Dictionary<string, string>();
-        public Dictionary<string, string> stuffCategoriesModName = new Dictionary<string, string>();
+
+        public Dictionary<string, bool> stuffCategoriesSetting;
+        public Dictionary<string, string> stuffCategoriesDescription;
+        public Dictionary<string, string> stuffCategoriesModName;
+
+        public int ingredientStateFilterSize = 0;
+        public Dictionary<string, bool> ingredientStateSetting;
+        public Dictionary<string, string> ingredientDescription;
 
         public int DefaultStuffCost { get => (int) (defaultStuffCost * 100); }
 
-        public virtual void GetSettings(Listing_Standard listingStandard)
+        public virtual void Initialize()
         {
-            GetSettingsHeader(listingStandard);
-            string label = "Default stuff cost: {0}".Formatted(defaultStuffCost * 100);
-            defaultStuffCost = listingStandard.SliderLabeled(label, defaultStuffCost, 0.01f, 1f);
+            if (stuffCategoriesSetting == null)
+                stuffCategoriesSetting = new Dictionary<string, bool>();
+            if (stuffCategoriesDescription == null)
+                stuffCategoriesDescription = new Dictionary<string, string>();
+            if (stuffCategoriesModName == null)
+                stuffCategoriesModName = new Dictionary<string, string>();
+            if (ingredientStateSetting == null)
+                ingredientStateSetting = new Dictionary<string, bool>();
+            if (ingredientDescription == null)
+                ingredientDescription = new Dictionary<string, string>();
+        }
+
+        public StuffableCategorySettings() 
+        {
+            Initialize();
+        }
+
+        public StuffableCategorySettings(string label) : this()
+        {
+            this.SettingsLabel = label;
+        }
+
+        public virtual void GetDefaultCostSlider(Listing_Standard listingStandard)
+        {
+            listingStandard.Label("Default stuff cost: {0}".Formatted(defaultStuffCost * 100));
+            defaultStuffCost = listingStandard.Slider(defaultStuffCost, defaultCostMin, defaultCostMax);
+        }
+
+        public virtual void GetAdditionalStuffMultiplierArmorSlider(Listing_Standard listingStandard)
+        {
+            if (usesAdditionalStuffMultiplierArmor)
+            {
+                listingStandard.Label("Fallback material effect multiplier: {0}".Formatted(additionalStuffMultiplierArmor * 100), tooltip: "Material effect multiplier, only applies to items that do not have it.");
+                additionalStuffMultiplierArmor = listingStandard.Slider(additionalStuffMultiplierArmor, -1.0f, 1.0f);
+            }
+        }
+
+        public virtual IEnumerable<string> GetEnabledStuffCategoriesSettingKeys()
+        {
+            foreach(KeyValuePair<string, bool> kvp in stuffCategoriesSetting.Where(i => i.Value == true))
+                yield return kvp.Key;
+        }
+
+        public virtual IEnumerable<string> GetDisabledStuffCategoriesSettingKeys()
+        {
+            foreach (KeyValuePair<string, bool> kvp in stuffCategoriesSetting.Where(i => i.Value == false))
+                yield return kvp.Key;
+        }
+
+        public virtual Dictionary<string, bool> GetIngredientsForEnabledCategories()
+        {
+            if(ingredientStateSetting == null)
+                ingredientStateSetting = new Dictionary<string, bool>();
+            if(ingredientDescription == null)
+                ingredientDescription = new Dictionary<string, string>();
+            Dictionary<string, bool> filter = new Dictionary<string, bool>();
+            foreach (string enabledKeys in GetEnabledStuffCategoriesSettingKeys())
+            {
+                bool flag = CacheUtil.GetFromCache(enabledKeys, out List<ThingDef> value, IngredientSelectionCache.IngredientCache);
+                if (flag && !value.EnumerableNullOrEmpty())
+                {
+                    value.ForEach(i => {
+                        bool newValue = true;
+                        string key = i.defName;
+                        if (ingredientStateSetting.TryGetValue(key, out bool oldValue))
+                            newValue = oldValue;
+                        filter.SetOrAdd(key, newValue);
+                        ingredientStateSetting.SetOrAdd(key, newValue);
+                        ingredientDescription.SetOrAdd(key, i.LabelCap);
+                    });
+                }
+            }
+            ingredientStateFilterSize = filter.Count;
+            return filter;
+        }
+
+        public virtual void SetDefaultsForApparel(ThingDef thingDef)
+        {
+            if (thingDef.statBases != null && thingDef.statBases.StatListContains(StatDefOf.StuffEffectMultiplierArmor))
+                return;
+
+            if (thingDef.statBases == null)
+                thingDef.statBases = new List<StatModifier>();
+
+            thingDef.statBases.Add(new StatModifier()
+            {
+                stat = StatDefOf.StuffEffectMultiplierArmor,
+                value = additionalStuffMultiplierArmor
+            });
+        }
+
+        public virtual List<ThingDef> GetEnabledIngredientsForEnabledCategories()
+        {
+            List<ThingDef> filter = new List<ThingDef>();
+            foreach (string enabledKeys in GetEnabledStuffCategoriesSettingKeys())
+            {
+                bool flag = CacheUtil.GetFromCache(enabledKeys, out List<ThingDef> value, IngredientSelectionCache.IngredientCache);
+                if (flag && !value.EnumerableNullOrEmpty())
+                {
+                    value.ForEach(i => {
+                        string key = i.defName;
+                        if (ingredientStateSetting.TryGetValue(key, out bool ivalue) && ivalue)
+                                filter.Add(i);
+                    });
+                }
+            }
+            return filter;
+        }
+
+        public virtual bool GetIngredientDescription(string key, out string value)
+        {
+            return ingredientDescription.TryGetValue(key, out value);
         }
 
         public virtual ThingDef GetDefaultStuffFor(ThingDef thingdef)
@@ -40,7 +163,7 @@ namespace StuffableCore.Settings
             return DefDatabase<ThingDef>.GetNamedSilentFail(stuffCategoriesSetting.RandomElement().Key);
         }
 
-        public virtual void SetSettings(string key, bool enabled, string description, string fromModName)
+        public virtual void SetSettings(string key, string description, string fromModName, bool enabled = false)
         {
             stuffCategoriesSetting.SetOrAdd(key, enabled);
             stuffCategoriesDescription.SetOrAdd(key, description);
@@ -85,38 +208,66 @@ namespace StuffableCore.Settings
             stuffCategoriesSetting = newStuffCategoriesSetting;
         }
 
+        public virtual bool ApplySearch(ThingDef item)
+        {
+            return true;
+        }
+
         public virtual bool ApplyAltSearch(ThingDef item)
         {
             return false;
         }
 
-        public override void GetSettingsHeader(Listing_Standard listing_Standard)
+        public virtual void GetSettingsHeaderEnabled(Listing_Standard listingStandard)
         {
-            listing_Standard.CheckboxLabeled("Enabled On Next Restart?", ref enabled, "Enabled On Next Restart?");
-            listing_Standard.Gap();
-            listing_Standard.CheckboxLabeled("Use additional search algorithm?", ref altSearch, "Uses an additional search algorithm to try and find potential stuffable items from other mods that may not inherit from base game.");
-            listing_Standard.Gap();
+            listingStandard.Label("Enable recipe update:", tooltip: "Enable below checkbox to update recipe on next restart.");
+            listingStandard.CheckboxLabeled("Enabled?", ref enabled, "Enabled recipe change?");
         }
 
-        public virtual void GetSettingsHeaderErrorMessage(Listing_Standard listing_Standard)
+        public override void GetSettingsHeaderSimple(Listing_Standard listingStandard)
         {
-            if (!IsSettingsValid())
+            listingStandard.CheckboxLabeled("Enabled On Next Restart?", ref enabled, "Enabled On Next Restart?");
+            listingStandard.Gap();
+        }
+
+        public virtual void GetSettingsHeaderCustom(Listing_Standard listingStandard)
+        {
+
+        }
+
+        public override void GetSettingsHeader(Listing_Standard listingStandard)
+        {
+            listingStandard.CheckboxLabeled("Enabled On Next Restart?", ref enabled, "Enabled On Next Restart?");
+            listingStandard.Gap();
+            listingStandard.CheckboxLabeled("Use additional search algorithm?", ref altSearch, "Uses an additional search algorithm to try and find potential stuffable items from other mods that may not inherit from base game.");
+            listingStandard.Gap();
+        }
+
+        public virtual void GetSettingsHeaderAltSearchEnabled(Listing_Standard listingStandard)
+        {
+            if (usesAltSearch)
             {
-                listing_Standard.GapLine();
-                listing_Standard.Label("Please select at least one category.");
-                listing_Standard.GapLine();
+                listingStandard.Label("Enable alternate search algorithm:", tooltip: "Enable alternate search algorithm on next restart.");
+                listingStandard.CheckboxLabeled("Use additional search algorithm?", ref altSearch, "Uses an additional search algorithm to try and find potential stuffable items from other mods that may not inherit from base game.");
             }
         }
 
-        public void DropDown(Listing_Standard listingStandard)
+        public virtual void GetSettingsHeaderErrorMessage(Listing_Standard listingStandard)
         {
-            listingStandard.GapLine();
-            GetSettingsHeaderErrorMessage(listingStandard);
-            DisplayCheckboxes(listingStandard);
-            listingStandard.GapLine();
+            if (!IsSettingsValid())
+            {
+                listingStandard.GapLine();
+                listingStandard.Label("Please select at least one category.".Colorize(Color.red));
+                listingStandard.GapLine();
+            }
         }
 
-        public void DisplayCheckboxes(Listing_Standard listing_Standard)
+        public void UseDefaultCostInsteadCheckbox(Listing_Standard listingStandard)
+        {
+            listingStandard.CheckboxLabeled("Enable to use default stuff cost instead of being auto-calculated?", ref useDefaultCostInstead, height: 35, tooltip: "Enable to use default stuff cost instead of being auto-calculated.");
+        }
+
+        public void DisplayCheckboxes(Listing_Standard listingStandard)
         {
             if (!stuffCategoriesSetting.NullOrEmpty())
             {
@@ -127,35 +278,78 @@ namespace StuffableCore.Settings
                     bool state = stuffCategoriesSetting.ElementAt(i).Value;
                     string desc = stuffCategoriesDescription.ElementAt(i).Value;
                     string fromMod = stuffCategoriesModName.ElementAt(i).Value;
-                    listing_Standard.CheckboxLabeled(label, ref state, "{0} from mod {1}".Formatted(desc, fromMod).CapitalizeFirst());
+                    listingStandard.CheckboxLabeled(label, ref state, "{0} from mod {1}".Formatted(desc, fromMod).CapitalizeFirst());
                     stuffCategoriesSetting.SetOrAdd(label, state);
                 }
             }
         }
 
-        public virtual void UpdateThingDef(ThingDef thingdef)
+        public virtual void UpdateThingDef(ThingDef thingDef)
         {
-            if (thingdef.stuffProps == null)
-                thingdef.stuffProps = new StuffProperties();
-            if (thingdef.stuffProps.statFactors == null)
-                thingdef.stuffProps.statFactors = new List<StatModifier>();
+            if (thingDef.stuffProps == null)
+                thingDef.stuffProps = new StuffProperties();
+            if (thingDef.stuffProps.statFactors == null)
+                thingDef.stuffProps.statFactors = new List<StatModifier>();
+            CostManager.UpdateCost(thingDef, DefaultStuffCost, useDefaultCostInstead);
+            ScenarioManager.UpdateScenarioItem(thingDef, this);
         }
 
-        internal void ClearSettings()
+        public virtual void ClearSettings()
         {
             stuffCategoriesSetting.Clear();
             stuffCategoriesDescription.Clear();
             stuffCategoriesModName.Clear();
         }
 
-        public virtual void ExposeData()
+        public virtual void SetStuffDefaults(IEnumerable<StuffCategoryDef> stuffs)
+        {
+            foreach (StuffCategoryDef stuff in stuffs)
+                if (!stuffCategoriesSetting.ContainsKey(stuff.defName))
+                    SetSettings(stuff.defName, stuff.label, stuff.modContentPack.Name);
+
+            int count = stuffCategoriesSetting.Count;
+            for(int i = count - 1; i >= 0; --i)
+            {
+                var kvp = stuffCategoriesSetting.ElementAt(i);
+                string key = kvp.Key;
+                bool flag = false;
+                foreach (StuffCategoryDef stuff in stuffs)
+                {
+                    if (key.Equals(stuff.defName))
+                        flag = true;
+                }
+                if (!flag)
+                    RemoveSettings(key);
+            }
+        }
+
+        public virtual void SetDefaultsForCategories(ThingDef thingDef)
+        {
+            if (thingDef.stuffCategories == null)
+                thingDef.stuffCategories = new List<StuffCategoryDef>();
+            else
+                thingDef.stuffCategories.Clear();
+        }
+
+        public virtual void ApplyStuffCategoryValues(IEnumerable<StuffCategoryDef> cacheStuffCategoryDef, ThingDef thingDef)
+        {
+            if (stuffCategoriesSetting == null)
+                return;
+            SetDefaultsForCategories(thingDef);
+            foreach (StuffCategoryDef stuff in cacheStuffCategoryDef)
+                if (stuffCategoriesSetting.TryGetValue(stuff.defName, out bool flag) && flag)
+                    thingDef.stuffCategories.Add(stuff);
+            UpdateThingDef(thingDef);
+        }
+
+        public override void ExposeData()
         {
             Scribe_Values.Look(ref enabled, "enabled", false);
+            Scribe_Values.Look(ref usesAltSearch, "usesAltSearch", true);
             Scribe_Values.Look(ref altSearch, "altSearch", false);
             Scribe_Values.Look(ref defaultStuffCost, "defaultStuffCost", 0.25f);
             Scribe_Values.Look(ref additionalStuffMultiplierDamageSharp, "additionalStuffMultiplierDamageSharp", 0.1f);
             Scribe_Values.Look(ref useRawPlantForStuff, "useRawPlantForStuff", false);
-
 
             Scribe_Values.Look(ref rangedSettingsToggle, "rangedSettingsToggle", false);
             Scribe_Values.Look(ref meleeSettingsToggle, "meleeSettingsToggle", false);
@@ -164,11 +358,16 @@ namespace StuffableCore.Settings
             Scribe_Values.Look(ref clothingSettingsToggle, "clothingSettingsToggle", false);
             Scribe_Values.Look(ref armorSettingsToggle, "armorSettingsToggle", false);
             Scribe_Values.Look(ref otherClothingToggle, "otherClothingToggle", false);
+            Scribe_Values.Look(ref usesAdditionalStuffMultiplierArmor, "usesAdditionalStuffMultiplierArmor", false);
             Scribe_Values.Look(ref additionalStuffMultiplierArmor, "additionalStuffMultiplier", 0.1f);
+            Scribe_Values.Look(ref useDefaultCostInstead, "useDefaultCostInstead", false);
 
             Scribe_Collections.Look(ref stuffCategoriesSetting, "stuffCategoriesSetting");
             Scribe_Collections.Look(ref stuffCategoriesDescription, "stuffCategoriesDescription");
             Scribe_Collections.Look(ref stuffCategoriesModName, "stuffCategoriesModName");
+
+            Scribe_Collections.Look(ref ingredientStateSetting, "ingredientStateSetting");
+            Scribe_Collections.Look(ref ingredientDescription, "ingredientDescription");
         }
     }
 }

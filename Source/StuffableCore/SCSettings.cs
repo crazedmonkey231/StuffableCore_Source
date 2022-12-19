@@ -12,7 +12,7 @@ using Verse;
 namespace StuffableCore
 {
     [StaticConstructorOnStartup]
-    public class StuffableCoreSettings : ModSettings
+    public class SCSettings : ModSettings
     {
 
         public CoreSettings CoreSettings = new CoreSettings();
@@ -23,6 +23,7 @@ namespace StuffableCore
         public ClothingAndArmorSettings ClothingAndArmorSettings = new ClothingAndArmorSettings();
         public ClothingSettings ClothingSettings = new ClothingSettings();
         public ArmorSettings ArmorSettings = new ArmorSettings();
+        public EditorSettings EditorSettings = new EditorSettings();
 
         public List<StuffableCategorySettings> GetAllStuffableCategorySettings()
         {
@@ -34,8 +35,23 @@ namespace StuffableCore
                 ClothingAndArmorSettings,
                 ClothingSettings,
                 ArmorSettings,
+                EditorSettings
             };
         }
+
+        public void GenNewSettings()
+        {
+            CoreSettings = new CoreSettings();
+            ImplantProstheticSettings = new ImplantProstheticSettings();
+            WeaponSettings = new WeaponSettings();
+            MeleeSettings = new MeleeSettings();
+            RangedSettings = new RangedSettings();
+            ClothingAndArmorSettings = new ClothingAndArmorSettings();
+            ClothingSettings = new ClothingSettings();
+            ArmorSettings = new ArmorSettings();
+            EditorSettings = new EditorSettings();
+        }
+
 
         public void ClearAllSettings()
         {
@@ -45,11 +61,11 @@ namespace StuffableCore
             });
         }
 
-        public void SetAllStuffableSettings(string key, bool enabled, string description, string fromModName)
+        public void SetAllStuffableSettings(string key, string description, string fromModName, bool enabled)
         {
             GetAllStuffableCategorySettings().ForEach(i =>
             {
-                i.SetSettings(key, enabled, description, fromModName);
+                i.SetSettings(key, description, fromModName, enabled);
             });
         }
 
@@ -72,6 +88,7 @@ namespace StuffableCore
             Scribe_Deep.Look(ref ClothingAndArmorSettings, "ClothingAndArmorSettings");
             Scribe_Deep.Look(ref ClothingSettings, "ClothingSettings");
             Scribe_Deep.Look(ref ArmorSettings, "ArmorSettings");
+            Scribe_Deep.Look(ref EditorSettings, "EditorSettings");
         }
     }
 }

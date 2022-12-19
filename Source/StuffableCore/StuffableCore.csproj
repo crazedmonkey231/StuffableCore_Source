@@ -73,23 +73,42 @@
     </Reference>
   </ItemGroup>
   <ItemGroup>
-    <Compile Include="HediffCompProperties_Stuffable.cs" />
-    <Compile Include="HediffCompStuffable.cs" />
-    <Compile Include="RecipeWorker_Harmony_Patch.cs" />
+    <Compile Include="SCCaching\CacheUtil.cs" />
+    <Compile Include="SCCaching\IngredientSelectionCache.cs" />
+    <Compile Include="SCCaching\StuffTagCache.cs" />
+    <Compile Include="SCComps\HediffCompProperties_Stuffable.cs" />
+    <Compile Include="SCComps\HediffCompStuffable.cs" />
+    <Compile Include="SCLoader.cs" />
+    <Compile Include="SCPatches\RecipeWorker_Harmony_Patch.cs" />
+    <Compile Include="SCUtils\CostManager.cs" />
+    <Compile Include="SCUtils\ScenarioManager.cs" />
+    <Compile Include="SCUtils\SearchUtil.cs" />
     <Compile Include="Settings\BaseSettings.cs" />
+    <Compile Include="Settings\BulkEditor\BulkEditorModule.cs" />
+    <Compile Include="Settings\BulkEditor\EditorModule.cs" />
     <Compile Include="Settings\ClothingSettings.cs" />
+    <Compile Include="Settings\EditorSettings.cs" />
+    <Compile Include="Settings\Editor\BaseModule.cs" />
+    <Compile Include="Settings\Editor\BasicInfo.cs" />
+    <Compile Include="Settings\Editor\CategorySelector.cs" />
+    <Compile Include="Settings\Editor\IEditorModule.cs" />
+    <Compile Include="Settings\Editor\MainEditorModule.cs" />
+    <Compile Include="Settings\Editor\ICarousel.cs" />
+    <Compile Include="Settings\Editor\IngredientLister.cs" />
+    <Compile Include="Settings\Editor\IngredientSelector.cs" />
     <Compile Include="Settings\LandingSettingsPage.cs" />
     <Compile Include="Settings\WeaponSettings.cs" />
     <Compile Include="Settings\ImplantProstheticSettings.cs" />
     <Compile Include="Settings\CoreSettings.cs" />
     <Compile Include="Settings\ISettings.cs" />
     <Compile Include="Settings\StuffableCategorySettings.cs" />
-    <Compile Include="SpawnThingsFromHediffs_Harmony_Patch.cs" />
-    <Compile Include="StuffableCoreConstants.cs" />
-    <Compile Include="StuffableCoreDefOf.cs" />
-    <Compile Include="StuffableCoreMod.cs" />
+    <Compile Include="SCPatches\SpawnThingsFromHediffs_Harmony_Patch.cs" />
+    <Compile Include="SCConstants.cs" />
+    <Compile Include="SCDefOf.cs" />
+    <Compile Include="SCMod.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
-    <Compile Include="StuffableCoreSettings.cs" />
+    <Compile Include="SCSettings.cs" />
   </ItemGroup>
+  <ItemGroup />
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
 </Project>

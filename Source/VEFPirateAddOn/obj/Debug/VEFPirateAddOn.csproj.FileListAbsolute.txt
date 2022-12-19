@@ -6,3 +6,5 @@ C:\Users\michael\Desktop\StuffableCore_Source\Source\VEFPirateAddOn.dll
 C:\Users\michael\Desktop\StuffableCore_Source\Source\VEFPirateAddOn.pdb
 F:\Program Files (x86)\Steam\SteamApps\common\RimWorld\Mods\StuffableCore\1.4\Assemblies\VEFPirateAddOn.dll
 F:\Program Files (x86)\Steam\SteamApps\common\RimWorld\Mods\StuffableCore\1.4\Assemblies\VEFPirateAddOn.pdb
+F:\Program Files (x86)\Steam\SteamApps\common\RimWorld\Mods\StuffableCoreVEFPiratesAddOn\1.4\Assemblies\VEFPirateAddOn.dll
+F:\Program Files (x86)\Steam\SteamApps\common\RimWorld\Mods\StuffableCoreVEFPiratesAddOn\1.4\Assemblies\VEFPirateAddOn.pdb

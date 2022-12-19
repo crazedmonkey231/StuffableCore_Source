@@ -2,7 +2,7 @@
 using System.Collections.Generic;
 using Verse;
 
-namespace StuffableCore
+namespace StuffableCore.SCComps
 {
     internal class HediffCompStuffable : HediffComp
     {

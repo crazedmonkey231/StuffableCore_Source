@@ -10,8 +10,9 @@ using System.Threading.Tasks;
 using Verse;
 using System.IO;
 using UnityEngine;
+using StuffableCore.SCComps;
 
-namespace StuffableCore
+namespace StuffableCore.SCPatches
 {
     public static class GenPatch
     {

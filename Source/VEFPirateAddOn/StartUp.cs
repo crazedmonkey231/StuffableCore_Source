@@ -8,6 +8,7 @@ using System.Text;
 using System.Threading.Tasks;
 using UnityEngine;
 using Verse;
+using VFEPirates.Buildings;
 
 namespace VEFPirateAddOn
 {
@@ -18,24 +19,22 @@ namespace VEFPirateAddOn
         {
             if (ModLister.HasActiveModWithName("Vanilla Factions Expanded - Pirates"))
             {
-                Type searchType = AccessTools.TypeByName("VFEPirates.WarcasketDef");
-                foreach (ThingDef def in DefDatabase<ThingDef>.AllDefs.Where(i => i.GetType().Equals(searchType)))
+                Log.Message("Found Vanilla Factions Expanded - Pirates, applying patch!");
+                foreach (ThingDef def in DefDatabase<ThingDef>.AllDefs.Where(i => i.GetType().Equals(typeof(VFEPirates.WarcasketDef))))
                 {
                     if (def.apparel.tags == null)
                         def.apparel.tags = new List<string>();
-                    def.apparel.tags.Add(StuffableCoreConstants.stuffableTag);
-                    def.apparel.tags.Add(StuffableCoreConstants.StuffableArmor);
+                    def.apparel.tags.Add(SCConstants.stuffableTag);
+                    def.apparel.tags.Add(SCConstants.StuffableArmor);
                 }
-                Type warcasketProject = AccessTools.TypeByName("VFEPirates.WarcasketProject");
-
-                StuffableCoreMod.harmony.Patch(AccessTools.Method(warcasketProject, "RequiredIngredients"), postfix: new HarmonyMethod(typeof(StartUp), "RequiredIngredients_Harmony_Patch_Postfix"));
-                StuffableCoreMod.harmony.Patch(AccessTools.Method(warcasketProject, "ApplyOn"), prefix: new HarmonyMethod(typeof(StartUp), "ApplyOnWarcasket_Harmony_Patch_Prefix"));
-                StuffableCoreMod.harmony.Patch(AccessTools.Method(AccessTools.TypeByName("VFEPirates.Buildings.Dialog_WarcasketCustomization"), "DoPartsSelect"), prefix: new HarmonyMethod(typeof(StartUp), "Dialog_WarcasketCustomization_Harmony_Patch_Prefix"));
+                //SCMod.harmony.Patch(AccessTools.Method(typeof(VFEPirates.WarcasketProject), "RequiredIngredients"), postfix: new HarmonyMethod(typeof(StartUp), "RequiredIngredients_Harmony_Patch_Postfix"));
+                //SCMod.harmony.Patch(AccessTools.Method(typeof(VFEPirates.WarcasketProject), "ApplyOn"), prefix: new HarmonyMethod(typeof(StartUp), "ApplyOnWarcasket_Harmony_Patch_Prefix"));
+                SCMod.harmony.Patch(AccessTools.Method(typeof(VFEPirates.Buildings.Dialog_WarcasketCustomization), "DoPartsSelect"), prefix: new HarmonyMethod(typeof(StartUp), "Dialog_WarcasketCustomization_Harmony_Patch_Prefix"));
             }
         }
 
         public static bool Dialog_WarcasketCustomization_Harmony_Patch_Prefix(
-            VFEPirates.Buildings.Dialog_WarcasketCustomization __instance,
+            Dialog_WarcasketCustomization __instance,
             Rect inRect,
             string label,
             List<VFEPirates.WarcasketDef> options,
@@ -124,19 +123,21 @@ namespace VEFPirateAddOn
 
         public static void RequiredIngredients_Harmony_Patch_Postfix(VFEPirates.WarcasketProject __instance, ref IEnumerable<IngredientCount> __result)
         {
+            Log.Message("Test 1");
             List<IngredientCount> ingredientCountList;
             ingredientCountList = __result.ToList();
-
-            int defaultCost = StuffableCoreMod.settings.ArmorSettings.DefaultStuffCost;
-
+            Log.Message("Test 2");
+            int defaultCost = SCMod.settings.ArmorSettings.DefaultStuffCost;
+            Log.Message("Test 3");
             int oldHelmCost = __instance.helmetDef.CostStuffCount;
             int helmCost = oldHelmCost > 0 ? oldHelmCost : defaultCost;
-
+            Log.Message("Test 4");
             int oldShoulderPadsCost = __instance.shoulderPadsDef.CostStuffCount;
             int shoulderPadsCost = oldShoulderPadsCost > 0 ? oldShoulderPadsCost : defaultCost;
-
+            Log.Message("Test 5");
             int oldArmorCost = __instance.armorDef.CostStuffCount;
             int armorCost = oldArmorCost > 0 ? oldArmorCost : defaultCost;
+            Log.Message("Test 6");
 
             List<ThingDefCountClass> armorList = new List<ThingDefCountClass>() {
                 new ThingDefCountClass(WarcasketStuffCache.GetStuffWithDefault(__instance.helmetDef), helmCost),
@@ -144,6 +145,7 @@ namespace VEFPirateAddOn
                 new ThingDefCountClass(WarcasketStuffCache.GetStuffWithDefault(__instance.armorDef), armorCost),
             };
 
+            Log.Message("Test 7");
             Dictionary<ThingDef, int> dictionary = new Dictionary<ThingDef, int>();
             foreach (ThingDefCountClass thingDefCountClass in armorList)
             {
@@ -152,7 +154,7 @@ namespace VEFPirateAddOn
                 else
                     dictionary[thingDefCountClass.thingDef] = thingDefCountClass.count;
             }
-
+            Log.Message("Test 8");
             foreach (KeyValuePair<ThingDef, int> keyValuePair in dictionary)
                 ingredientCountList.Add(new ThingDefCountClass(keyValuePair.Key, keyValuePair.Value).ToIngredientCount());
 

@@ -5,7 +5,7 @@ using System.Text;
 using System.Threading.Tasks;
 using Verse;
 
-namespace StuffableCore
+namespace StuffableCore.SCComps
 {
     public class HediffCompProperties_Stuffable : HediffCompProperties
     {

@@ -1,4 +1,5 @@
 ﻿using RimWorld;
+using StuffableCore.SCCaching;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -13,40 +14,37 @@ namespace StuffableCore.Settings
     {
         public ClothingSettings()
         {
-            settingsLabel = "Clothing Settings";
-            enabled = true;
-            altSearch = true;
+            SettingsLabel = "Bulk clothing settings";
+            usesAdditionalStuffMultiplierArmor = true;
         }
 
-        public override void GetSettings(Listing_Standard listingStandard)
+        public override void ApplyStuffCategoryValues(IEnumerable<StuffCategoryDef> cacheStuffCategoryDef, ThingDef thingDef)
         {
-            listingStandard.CheckboxLabeled("Clothing settings dropdown {0}".Formatted(clothingSettingsToggle ? "▲" : "▼"), ref clothingSettingsToggle, "Clothing settings dropdown.");
-            if (clothingSettingsToggle)
-                DropDown(listingStandard);
+            base.SetDefaultsForApparel(thingDef);
+            base.ApplyStuffCategoryValues(cacheStuffCategoryDef, thingDef);
         }
 
-        public override void UpdateThingDef(ThingDef thingdef)
+        public override bool ApplySearch(ThingDef item)
         {
-            if (thingdef.statBases != null)
-                if (thingdef.statBases.StatListContains(StatDefOf.StuffEffectMultiplierArmor))
-                    return;
-
-            if (thingdef.statBases == null)
-                thingdef.statBases = new List<StatModifier>();
-
-            thingdef.statBases.Add(new StatModifier()
-            {
-                stat = StatDefOf.StuffEffectMultiplierArmor,
-                value = StuffableCoreMod.settings.ClothingAndArmorSettings.additionalStuffMultiplierArmor
-            });
+            bool flag = item.IsApparel
+                && item.apparel.tags.NotNullAndContains(SCConstants.StuffableClothing)
+                && !item.apparel.tags.NotNullAndContains(SCConstants.StuffableArmor);
+            if (flag)
+                CacheUtil.AddToCache(item.defName, item, StuffTagCache.ClothingArmorCache);
+            return flag;
         }
 
         public override bool ApplyAltSearch(ThingDef item)
         {
-            return item.IsApparel 
-                && item.apparel?.tags != null 
-                && item.apparel.tags.Contains(StuffableCoreConstants.StuffableClothing) 
-                && !item.apparel.tags.Contains(StuffableCoreConstants.StuffableArmor);
+            bool flag = item.IsApparel
+                && !item.apparel.tags.NotNullAndContains(SCConstants.StuffableClothing)
+                && !item.apparel.tags.NotNullAndContains(SCConstants.StuffableArmor)
+                && (!(item.tradeTags.NotNullAndContains("HiTechArmor") || item.tradeTags.NotNullAndContains("Armor"))
+                    && (item.tradeTags.NotNullAndContains("BasicClothing") || item.tradeTags.NotNullAndContains("Clothing"))
+                        || (item.thingCategories.NotNullAndContains(SCDefOf.ApparelMisc) && !item.thingCategories.NotNullAndContains(ThingCategoryDefOf.Apparel)));
+            if (flag)
+                CacheUtil.AddToCache(item.defName, item, StuffTagCache.ClothingArmorCache);
+            return flag;
         }
     }
 
@@ -54,85 +52,71 @@ namespace StuffableCore.Settings
     {
         public ArmorSettings()
         {
-            settingsLabel = "Armor Settings";
-            enabled = true;
-            altSearch = true;
+            SettingsLabel = "Bulk armor settings";
+            usesAdditionalStuffMultiplierArmor = true;
         }
 
-        public override void GetSettings(Listing_Standard listingStandard)
+        public override void UpdateThingDef(ThingDef thingDef)
         {
-            listingStandard.CheckboxLabeled("Armor settings dropdown {0}".Formatted(armorSettingsToggle ? "▲" : "▼"), ref armorSettingsToggle, "Armor settings dropdown.");
-            if (armorSettingsToggle)
-                DropDown(listingStandard);
+            base.SetDefaultsForApparel(thingDef);
+            base.UpdateThingDef(thingDef);
         }
-        public override void UpdateThingDef(ThingDef thingdef)
+
+        public override bool ApplySearch(ThingDef item)
         {
-            if (thingdef.statBases != null)
-                if (thingdef.statBases.StatListContains(StatDefOf.StuffEffectMultiplierArmor))
-                    return;
-
-            if (thingdef.statBases == null)
-                thingdef.statBases = new List<StatModifier>();
-
-            thingdef.statBases.Add(new StatModifier()
-            {
-                stat = StatDefOf.StuffEffectMultiplierArmor,
-                value = StuffableCoreMod.settings.ClothingAndArmorSettings.additionalStuffMultiplierArmor
-            });
+            bool flag = item.IsApparel && item.apparel.tags.NotNullAndContains(SCConstants.StuffableArmor);
+            if (flag)
+                CacheUtil.AddToCache(item.defName, item, StuffTagCache.ClothingArmorCache);
+            return flag;
         }
 
         public override bool ApplyAltSearch(ThingDef item)
         {
-            return item.IsApparel
-                && item.apparel?.tags != null
-                && item.apparel.tags.Contains(StuffableCoreConstants.StuffableArmor);
+            bool flag = item.IsApparel
+                && !item.apparel.tags.NotNullAndContains(SCConstants.StuffableArmor)
+                && ((item.tradeTags.NotNullAndContains("HiTechArmor") || item.tradeTags.NotNullAndContains("Armor"))
+                    || item.thingCategories.NotNullAndContains(ThingCategoryDefOf.ApparelArmor));
+            if (flag)
+                CacheUtil.AddToCache(item.defName, item, StuffTagCache.ClothingArmorCache);
+            return flag;
         }
     }
 
-    public class ClothingAndArmorSettings : StuffableCategorySettings, ISettings
+    public class ClothingAndArmorSettings : StuffableCategorySettings
     {
 
         public ClothingAndArmorSettings()
         {
-            settingsLabel = "Clothing Settings";
+            SettingsLabel = "Catch-all bulk clothing/armor settings";
+            usesAdditionalStuffMultiplierArmor = true;
         }
 
-        public override void GetSettings(Listing_Standard listingStandard)
+        public override void UpdateThingDef(ThingDef thingDef)
         {
-            base.GetSettings(listingStandard);
-            listingStandard.Label("Stuff Effect Multiplier Armor (0-Uses base apparel stats, Recommended between 10-20 to get material bonuses): " + Math.Round(additionalStuffMultiplierArmor * 100));
-            additionalStuffMultiplierArmor = listingStandard.Slider(additionalStuffMultiplierArmor, -1f, 1f);
-            StuffableCoreMod.settings.ClothingSettings.GetSettings(listingStandard);
-            StuffableCoreMod.settings.ArmorSettings.GetSettings(listingStandard);
-            listingStandard.CheckboxLabeled("Catch-all settings dropdown {0}".Formatted(otherClothingToggle ? "▲" : "▼"), ref otherClothingToggle, StuffableCoreConstants.CatchAllToolTip);
-            if (otherClothingToggle)
-                DropDown(listingStandard);
+            base.SetDefaultsForApparel(thingDef);
+            base.UpdateThingDef(thingDef);
         }
 
-        public override void UpdateThingDef(ThingDef thingdef)
+        public override bool ApplySearch(ThingDef item)
         {
-            if (thingdef.statBases != null)
-                if (thingdef.statBases.StatListContains(StatDefOf.StuffEffectMultiplierArmor))
-                    return;
-
-            if (thingdef.statBases == null)
-                thingdef.statBases = new List<StatModifier>();
-
-            thingdef.statBases.Add(new StatModifier()
-            {
-                stat = StatDefOf.StuffEffectMultiplierArmor,
-                value = StuffableCoreMod.settings.ClothingAndArmorSettings.additionalStuffMultiplierArmor
-            });
+            return false;
         }
 
         public override bool ApplyAltSearch(ThingDef item)
         {
-            bool? contains = item.apparel?.tags?.NotNullAndContains(StuffableCoreConstants.stuffableTag);
+            bool flag = item.IsApparel && !HasStuffableTag(item);
+            if(flag)
+                CacheUtil.AddToCache(item.defName, item, StuffTagCache.ClothingArmorCache);
+            return flag;
+        }
+
+        private static bool HasStuffableTag(ThingDef item)
+        {
+            bool? contains = item.apparel?.tags?.NotNullAndContains(SCConstants.stuffableTag);
             bool flag = false;
             if (contains.HasValue)
                 flag = true;
-
-            return item.IsApparel && flag;
+            return flag;
         }
     }
 }

@@ -9,8 +9,14 @@ using Verse;
 namespace StuffableCore
 {
     [DefOf]
-    internal class StuffableCoreDefOf
+    internal class SCDefOf
     {
         public static StuffCategoryDef StuffableCore_RawStuff;
+
+        public static ThingCategoryDef BodyPartsProsthetic;
+        public static ThingCategoryDef BodyPartsBionic;
+        public static ThingCategoryDef BodyPartsArchotech;
+        public static ThingCategoryDef ApparelMisc;
+
     }
 }
