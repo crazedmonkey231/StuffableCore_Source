@@ -14,3 +14,7 @@ C:\Users\michael\Desktop\StuffableCore_Source\Source\StuffableCore\obj\Debug\Stu
 C:\Users\michael\Desktop\StuffableCore_Source\Source\StuffableCore\obj\Debug\StuffableCore.csproj.CoreCompileInputs.cache
 C:\Users\michael\Desktop\StuffableCore_Source\Source\StuffableCore\obj\Debug\StuffableCore.dll
 C:\Users\michael\Desktop\StuffableCore_Source\Source\StuffableCore\obj\Debug\StuffableCore.pdb
+C:\Users\michael\Desktop\StuffableCore_Source\StuffableCore_Source\Source\StuffableCore\obj\Debug\StuffableCore.csproj.AssemblyReference.cache
+C:\Users\michael\Desktop\StuffableCore_Source\StuffableCore_Source\Source\StuffableCore\obj\Debug\StuffableCore.csproj.CoreCompileInputs.cache
+C:\Users\michael\Desktop\StuffableCore_Source\StuffableCore_Source\Source\StuffableCore\obj\Debug\StuffableCore.dll
+C:\Users\michael\Desktop\StuffableCore_Source\StuffableCore_Source\Source\StuffableCore\obj\Debug\StuffableCore.pdb
