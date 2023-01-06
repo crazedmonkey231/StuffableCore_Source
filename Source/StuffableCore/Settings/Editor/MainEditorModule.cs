@@ -6,17 +6,22 @@ using System.Text;
 using System.Threading.Tasks;
 using UnityEngine;
 using Verse;
+using Verse.Noise;
 
 namespace StuffableCore.Settings.Editor
 {
     public class MainEditorModule : ISettings
     {
 
+        private Rect rectL;
+        private Rect rectC;
+        private Rect rectR;
+
         private ISettings innerL;
         private ISettings innerC;
         private ISettings innerR;
 
-        private int position = 385;
+        private int position = 400;
 
         public ISettings InnerL { get => innerL; set => innerL = value; }
         public ISettings InnerC { get => innerC; set => innerC = value; }
@@ -57,14 +62,18 @@ namespace StuffableCore.Settings.Editor
             innerRect.y += 7.5f;
             inner.Begin(innerRect);
 
+            rectL = new Rect(rect.x, rect.y, widthAdj, height);
+            rectC = new Rect(width, rect.y, widthAdj, height);
+            rectR = new Rect(width * 2, rect.y, widthAdj, height);
+
             if (innerL != null)
-                DoInner(innerL, inner, new Rect(rect.x, rect.y, widthAdj, height));
+                DoInner(innerL, inner, rectL);
 
             if (innerC != null)
-                DoInner(innerC, inner, new Rect(width, rect.y, widthAdj, height));
+                DoInner(innerC, inner, rectC);
 
             if (innerR != null)
-                DoInner(innerR, inner, new Rect(width * 2, rect.y, widthAdj, height));
+                DoInner(innerR, inner, rectR);
 
             inner.End();
         }
@@ -86,8 +95,8 @@ namespace StuffableCore.Settings.Editor
             return new MainEditorModule()
             {
                 InnerL = new BasicInfo(selectedSettings),
-                InnerC = new CategorySelector(selectedSettings),
-                InnerR = new IngredientSelector(selectedSettings)
+                InnerC = new BasicSelector("Stuffable Categorinator".Colorize(Color.green), new CategoryLister(selectedSettings, 10), selectedSettings),
+                InnerR = new BasicSelector("Ingredient Selectinator".Colorize(Color.green), new IngredientLister(selectedSettings, 10), selectedSettings)
             };
         }
     }

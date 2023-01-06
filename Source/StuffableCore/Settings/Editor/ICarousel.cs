@@ -11,5 +11,7 @@ namespace StuffableCore.Settings.Editor
         void ChangeIndex(int index);
 
         bool Search(string search, out int index);
+
+        int MaxFilterSize();
     }
 }

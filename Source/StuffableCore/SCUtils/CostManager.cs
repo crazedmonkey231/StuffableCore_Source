@@ -11,7 +11,7 @@ namespace StuffableCore.SCUtils
 {
     public static class CostManager
     {
-        public static void UpdateCost(ThingDef thingDef, int defaultStuffCost, bool usingAltCost)
+        public static void UpdateCost(ThingDef thingDef, int defaultStuffCost, bool usingAltCost = false)
         {
             int newStuffCostCount;
             if (usingAltCost)

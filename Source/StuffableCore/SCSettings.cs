@@ -52,31 +52,6 @@ namespace StuffableCore
             EditorSettings = new EditorSettings();
         }
 
-
-        public void ClearAllSettings()
-        {
-            GetAllStuffableCategorySettings().ForEach(i =>
-            {
-                i.ClearSettings();
-            });
-        }
-
-        public void SetAllStuffableSettings(string key, string description, string fromModName, bool enabled)
-        {
-            GetAllStuffableCategorySettings().ForEach(i =>
-            {
-                i.SetSettings(key, description, fromModName, enabled);
-            });
-        }
-
-        public void ToggleAll(bool toggle)
-        {
-            GetAllStuffableCategorySettings().ForEach(i =>
-            {
-                i.ToggleAllSettings(toggle);
-            });
-        }
-
         public override void ExposeData()
         {
             base.ExposeData();

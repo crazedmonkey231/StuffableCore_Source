@@ -91,7 +91,7 @@ namespace StuffableCore.Settings.BulkEditor
                     string key = SelectedDef.defName;
                     settings.ThingDefSettingsCache.TryGetValue(key, out StuffableCategorySettings value);
                     SelectedSettings = value;
-                    SelectedSettings.usesAdditionalStuffMultiplierArmor = usesAdditionalStuffMultiplierArmor && !SelectedDef.statBases.StatListContains(StatDefOf.StuffEffectMultiplierArmor);
+                    SelectedSettings.usesAdditionalStuffMultiplierArmor = usesAdditionalStuffMultiplierArmor && SelectedSettings.usesAdditionalStuffMultiplierArmor;
                     SelectedSettings.usesAltSearch = usesAltSearch;
                     innerSettingsWindow = MainEditorModule.GetDefaultEditor(SelectedSettings);
                 }, shownItemForIcon));

@@ -90,12 +90,10 @@
     <Compile Include="Settings\EditorSettings.cs" />
     <Compile Include="Settings\Editor\BaseModule.cs" />
     <Compile Include="Settings\Editor\BasicInfo.cs" />
-    <Compile Include="Settings\Editor\CategorySelector.cs" />
-    <Compile Include="Settings\Editor\IEditorModule.cs" />
     <Compile Include="Settings\Editor\MainEditorModule.cs" />
     <Compile Include="Settings\Editor\ICarousel.cs" />
-    <Compile Include="Settings\Editor\IngredientLister.cs" />
-    <Compile Include="Settings\Editor\IngredientSelector.cs" />
+    <Compile Include="Settings\Editor\BasicLister.cs" />
+    <Compile Include="Settings\Editor\BasicSelector.cs" />
     <Compile Include="Settings\LandingSettingsPage.cs" />
     <Compile Include="Settings\WeaponSettings.cs" />
     <Compile Include="Settings\ImplantProstheticSettings.cs" />

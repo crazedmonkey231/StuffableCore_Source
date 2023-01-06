@@ -24,7 +24,7 @@ namespace StuffableCore.Settings.BulkEditor
         private List<ISettings> selectedWindows;
         private ISettings selectedWindow;
 
-        public BulkEditorModule(List<StuffableCategorySettings> settingsCollection, int columns = 1, int height = 50, int size = 500)
+        public BulkEditorModule(List<StuffableCategorySettings> settingsCollection, int columns, int height, int size)
         {
             this.columns = columns;
             this.height = height;

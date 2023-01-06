@@ -1,6 +1,7 @@
 ﻿using RimWorld;
 using StuffableCore.SCCaching;
 using StuffableCore.SCUtils;
+using StuffableCore.Settings.Editor;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -8,6 +9,7 @@ using System.Text;
 using System.Threading.Tasks;
 using UnityEngine;
 using Verse;
+using Verse.Noise;
 
 namespace StuffableCore.Settings
 {
@@ -22,6 +24,7 @@ namespace StuffableCore.Settings
         public bool clothingSettingsToggle = false;
         public bool armorSettingsToggle = false;
         public bool otherClothingToggle = false;
+
         public bool usesAdditionalStuffMultiplierArmor = false;
         public float additionalStuffMultiplierArmor = 0.1f;
         public float additionalStuffMultiplierDamageSharp = 0.1f;
@@ -36,11 +39,21 @@ namespace StuffableCore.Settings
         public Dictionary<string, string> stuffCategoriesDescription;
         public Dictionary<string, string> stuffCategoriesModName;
 
-        public int ingredientStateFilterSize = 0;
         public Dictionary<string, bool> ingredientStateSetting;
         public Dictionary<string, string> ingredientDescription;
+        public Dictionary<string, bool> filter;
 
         public int DefaultStuffCost { get => (int) (defaultStuffCost * 100); }
+
+        public int FilterSize
+        {
+            get
+            {
+                if (filter == null)
+                    return 0;
+                return filter.Count;
+            }
+        }
 
         public virtual void Initialize()
         {
@@ -74,11 +87,10 @@ namespace StuffableCore.Settings
 
         public virtual void GetAdditionalStuffMultiplierArmorSlider(Listing_Standard listingStandard)
         {
-            if (usesAdditionalStuffMultiplierArmor)
-            {
-                listingStandard.Label("Fallback material effect multiplier: {0}".Formatted(additionalStuffMultiplierArmor * 100), tooltip: "Material effect multiplier, only applies to items that do not have it.");
-                additionalStuffMultiplierArmor = listingStandard.Slider(additionalStuffMultiplierArmor, -1.0f, 1.0f);
-            }
+            listingStandard.CheckboxLabeled("Uses additional stuff multiplier", ref usesAdditionalStuffMultiplierArmor);
+            listingStandard.Label("Material effect multiplier: {0}".Formatted(additionalStuffMultiplierArmor * 100), tooltip: "Material effect multiplier.");
+            additionalStuffMultiplierArmor = listingStandard.Slider(additionalStuffMultiplierArmor, -1.0f, 1.0f);
+
         }
 
         public virtual IEnumerable<string> GetEnabledStuffCategoriesSettingKeys()
@@ -93,55 +105,12 @@ namespace StuffableCore.Settings
                 yield return kvp.Key;
         }
 
-        public virtual Dictionary<string, bool> GetIngredientsForEnabledCategories()
-        {
-            if(ingredientStateSetting == null)
-                ingredientStateSetting = new Dictionary<string, bool>();
-            if(ingredientDescription == null)
-                ingredientDescription = new Dictionary<string, string>();
-            Dictionary<string, bool> filter = new Dictionary<string, bool>();
-            foreach (string enabledKeys in GetEnabledStuffCategoriesSettingKeys())
-            {
-                bool flag = CacheUtil.GetFromCache(enabledKeys, out List<ThingDef> value, IngredientSelectionCache.IngredientCache);
-                if (flag && !value.EnumerableNullOrEmpty())
-                {
-                    value.ForEach(i => {
-                        bool newValue = true;
-                        string key = i.defName;
-                        if (ingredientStateSetting.TryGetValue(key, out bool oldValue))
-                            newValue = oldValue;
-                        filter.SetOrAdd(key, newValue);
-                        ingredientStateSetting.SetOrAdd(key, newValue);
-                        ingredientDescription.SetOrAdd(key, i.LabelCap);
-                    });
-                }
-            }
-            ingredientStateFilterSize = filter.Count;
-            return filter;
-        }
-
-        public virtual void SetDefaultsForApparel(ThingDef thingDef)
-        {
-            if (thingDef.statBases != null && thingDef.statBases.StatListContains(StatDefOf.StuffEffectMultiplierArmor))
-                return;
-
-            if (thingDef.statBases == null)
-                thingDef.statBases = new List<StatModifier>();
-
-            thingDef.statBases.Add(new StatModifier()
-            {
-                stat = StatDefOf.StuffEffectMultiplierArmor,
-                value = additionalStuffMultiplierArmor
-            });
-        }
-
         public virtual List<ThingDef> GetEnabledIngredientsForEnabledCategories()
         {
             List<ThingDef> filter = new List<ThingDef>();
             foreach (string enabledKeys in GetEnabledStuffCategoriesSettingKeys())
             {
-                bool flag = CacheUtil.GetFromCache(enabledKeys, out List<ThingDef> value, IngredientSelectionCache.IngredientCache);
-                if (flag && !value.EnumerableNullOrEmpty())
+                if (CacheUtil.GetFromCache(enabledKeys, out List<ThingDef> value, IngredientSelectionCache.IngredientCache) && !value.EnumerableNullOrEmpty())
                 {
                     value.ForEach(i => {
                         string key = i.defName;
@@ -153,14 +122,22 @@ namespace StuffableCore.Settings
             return filter;
         }
 
-        public virtual bool GetIngredientDescription(string key, out string value)
-        {
-            return ingredientDescription.TryGetValue(key, out value);
-        }
-
         public virtual ThingDef GetDefaultStuffFor(ThingDef thingdef)
         {
-            return DefDatabase<ThingDef>.GetNamedSilentFail(stuffCategoriesSetting.RandomElement().Key);
+            string key = stuffCategoriesSetting.Where(i => i.Value == true).RandomElement().Key;
+            CacheUtil.GetFromCache(key, out List<ThingDef> value, IngredientSelectionCache.IngredientCache);
+            return value.RandomElement();
+        }
+
+        public virtual List<ThingDef> GetDefaultStuffListFor()
+        {
+            List<ThingDef> newList = new List<ThingDef>();
+            foreach(var newVals in stuffCategoriesSetting.Where(i => i.Value == true))
+            {
+                CacheUtil.GetFromCache(newVals.Key, out List<ThingDef> value, IngredientSelectionCache.IngredientCache);
+                newList.AddRange(value);
+            }
+            return newList;
         }
 
         public virtual void SetSettings(string key, string description, string fromModName, bool enabled = false)
@@ -274,24 +251,14 @@ namespace StuffableCore.Settings
                 int count = stuffCategoriesSetting.Keys.Count;
                 for (int i = 0; i < count; i++)
                 {
-                    string label = stuffCategoriesSetting.ElementAt(i).Key;
+                    string key = stuffCategoriesSetting.ElementAt(i).Key;
                     bool state = stuffCategoriesSetting.ElementAt(i).Value;
                     string desc = stuffCategoriesDescription.ElementAt(i).Value;
                     string fromMod = stuffCategoriesModName.ElementAt(i).Value;
-                    listingStandard.CheckboxLabeled(label, ref state, "{0} from mod {1}".Formatted(desc, fromMod).CapitalizeFirst());
-                    stuffCategoriesSetting.SetOrAdd(label, state);
+                    listingStandard.CheckboxLabeled(key, ref state, "{0} from mod {1}".Formatted(desc, fromMod).CapitalizeFirst());
+                    stuffCategoriesSetting.SetOrAdd(key, state);
                 }
             }
-        }
-
-        public virtual void UpdateThingDef(ThingDef thingDef)
-        {
-            if (thingDef.stuffProps == null)
-                thingDef.stuffProps = new StuffProperties();
-            if (thingDef.stuffProps.statFactors == null)
-                thingDef.stuffProps.statFactors = new List<StatModifier>();
-            CostManager.UpdateCost(thingDef, DefaultStuffCost, useDefaultCostInstead);
-            ScenarioManager.UpdateScenarioItem(thingDef, this);
         }
 
         public virtual void ClearSettings()
@@ -331,7 +298,7 @@ namespace StuffableCore.Settings
                 thingDef.stuffCategories.Clear();
         }
 
-        public virtual void ApplyStuffCategoryValues(IEnumerable<StuffCategoryDef> cacheStuffCategoryDef, ThingDef thingDef)
+        public virtual void ApplyUpdate(IEnumerable<StuffCategoryDef> cacheStuffCategoryDef, ThingDef thingDef)
         {
             if (stuffCategoriesSetting == null)
                 return;
@@ -341,6 +308,32 @@ namespace StuffableCore.Settings
                     thingDef.stuffCategories.Add(stuff);
             UpdateThingDef(thingDef);
         }
+
+        public virtual void UpdateThingDef(ThingDef thingDef)
+        {
+            if (thingDef.stuffProps == null)
+                thingDef.stuffProps = new StuffProperties();
+            if (thingDef.stuffProps.statFactors == null)
+                thingDef.stuffProps.statFactors = new List<StatModifier>();
+            if (usesAdditionalStuffMultiplierArmor)
+            {
+                if (thingDef.statBases == null)
+                    thingDef.statBases = new List<StatModifier>();
+
+                int index = thingDef.statBases.FindIndex(i => StatDefOf.StuffEffectMultiplierArmor.Equals(i.stat));
+                if (index >= 0)
+                    thingDef.statBases.RemoveAt(index);
+
+                thingDef.statBases.Add(new StatModifier()
+                {
+                    stat = StatDefOf.StuffEffectMultiplierArmor,
+                    value = additionalStuffMultiplierArmor
+                });
+            }
+            CostManager.UpdateCost(thingDef, DefaultStuffCost, useDefaultCostInstead);
+            ScenarioManager.UpdateScenarioItem(thingDef, this);
+        }
+
 
         public override void ExposeData()
         {

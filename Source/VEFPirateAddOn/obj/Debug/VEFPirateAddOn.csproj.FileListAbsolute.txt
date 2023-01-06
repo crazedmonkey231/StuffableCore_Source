@@ -8,3 +8,11 @@ F:\Program Files (x86)\Steam\SteamApps\common\RimWorld\Mods\StuffableCore\1.4\As
 F:\Program Files (x86)\Steam\SteamApps\common\RimWorld\Mods\StuffableCore\1.4\Assemblies\VEFPirateAddOn.pdb
 F:\Program Files (x86)\Steam\SteamApps\common\RimWorld\Mods\StuffableCoreVEFPiratesAddOn\1.4\Assemblies\VEFPirateAddOn.dll
 F:\Program Files (x86)\Steam\SteamApps\common\RimWorld\Mods\StuffableCoreVEFPiratesAddOn\1.4\Assemblies\VEFPirateAddOn.pdb
+C:\Users\michael\Desktop\StuffableCore_Source\StuffableCore_Source\Source\VEFPirateAddOn\obj\Debug\VEFPirateAddOn.csproj.AssemblyReference.cache
+C:\Users\michael\Desktop\StuffableCore_Source\StuffableCore_Source\Source\VEFPirateAddOn\obj\Debug\VEFPirateAddOn.csproj.CoreCompileInputs.cache
+C:\Users\michael\Desktop\StuffableCore_Source\StuffableCore_Source\Source\VEFPirateAddOn\obj\Debug\VEFPirateAddOn.dll
+C:\Users\michael\Desktop\StuffableCore_Source\StuffableCore_Source\Source\VEFPirateAddOn\obj\Debug\VEFPirateAddOn.pdb
+C:\Users\michael\Desktop\StuffableCore_Source\StuffableCoreMod\Plugins\VEF_Pirates\Assemblies\VEFPirateAddOn.dll
+C:\Users\michael\Desktop\StuffableCore_Source\StuffableCoreMod\Plugins\VEF_Pirates\Assemblies\VEFPirateAddOn.pdb
+F:\Program Files (x86)\Steam\SteamApps\common\RimWorld\Mods\StuffableCore\Plugins\VEF_Pirates\Assemblies\VEFPirateAddOn.dll
+F:\Program Files (x86)\Steam\SteamApps\common\RimWorld\Mods\StuffableCore\Plugins\VEF_Pirates\Assemblies\VEFPirateAddOn.pdb

@@ -18,12 +18,6 @@ namespace StuffableCore.Settings
             usesAdditionalStuffMultiplierArmor = true;
         }
 
-        public override void ApplyStuffCategoryValues(IEnumerable<StuffCategoryDef> cacheStuffCategoryDef, ThingDef thingDef)
-        {
-            base.SetDefaultsForApparel(thingDef);
-            base.ApplyStuffCategoryValues(cacheStuffCategoryDef, thingDef);
-        }
-
         public override bool ApplySearch(ThingDef item)
         {
             bool flag = item.IsApparel
@@ -56,12 +50,6 @@ namespace StuffableCore.Settings
             usesAdditionalStuffMultiplierArmor = true;
         }
 
-        public override void UpdateThingDef(ThingDef thingDef)
-        {
-            base.SetDefaultsForApparel(thingDef);
-            base.UpdateThingDef(thingDef);
-        }
-
         public override bool ApplySearch(ThingDef item)
         {
             bool flag = item.IsApparel && item.apparel.tags.NotNullAndContains(SCConstants.StuffableArmor);
@@ -89,12 +77,6 @@ namespace StuffableCore.Settings
         {
             SettingsLabel = "Catch-all bulk clothing/armor settings";
             usesAdditionalStuffMultiplierArmor = true;
-        }
-
-        public override void UpdateThingDef(ThingDef thingDef)
-        {
-            base.SetDefaultsForApparel(thingDef);
-            base.UpdateThingDef(thingDef);
         }
 
         public override bool ApplySearch(ThingDef item)

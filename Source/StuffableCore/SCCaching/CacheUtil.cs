@@ -61,5 +61,21 @@ namespace StuffableCore.SCCaching
             }
             return cache.TryGetValue(key, out value);
         }
+
+        public static bool GetFromCache(string key, out List<string> value, Dictionary<string, List<ThingDef>> cache)
+        {
+            if (cache == null)
+            {
+                cache = new Dictionary<string, List<ThingDef>>();
+                value = null;
+                return false;
+            }
+            bool found = cache.TryGetValue(key, out List<ThingDef> newValue) && newValue != null;
+            if(found)
+                value = newValue.ToDictionary(i => i.defName, i => newValue).Keys.ToList();
+            else
+                value = null;
+            return found;
+        }
     }
 }

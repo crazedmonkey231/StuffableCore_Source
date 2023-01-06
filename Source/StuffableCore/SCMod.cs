@@ -166,11 +166,12 @@ namespace StuffableCore
 
         private static void RunUpdate(IEnumerable<StuffCategoryDef> stuffCategoryDefs, IEnumerable<ThingDef> stuffableStuff, StuffableCategorySettings categorySetting)
         {
-
+            //for caching purpose needs to be done
             List<ThingDef> newStuffList = new List<ThingDef>();
             foreach (ThingDef thingDef in stuffableStuff.Where(i => categorySetting.ApplySearch(i)))
                 newStuffList.AddDistinct(thingDef);
 
+            //for caching purpose needs to be done
             if (categorySetting.altSearch)
                 foreach (ThingDef thingDef in DefDatabase<ThingDef>.AllDefs.Where(i => categorySetting.ApplyAltSearch(i)))
                     newStuffList.AddDistinct(thingDef);
@@ -179,7 +180,7 @@ namespace StuffableCore
             {
                 categorySetting.Initialize();
                 foreach (ThingDef thingdef in newStuffList)
-                    categorySetting.ApplyStuffCategoryValues(stuffCategoryDefs, thingdef);
+                    categorySetting.ApplyUpdate(stuffCategoryDefs, thingdef);
             }
         }
 
@@ -227,10 +228,6 @@ namespace StuffableCore
                 ResetSettingsCache();
                 settings.CoreSettings.clearCache = false;
             }
-            if (settings.CoreSettings.toggleAll)
-                settings.ToggleAll(true);
-            if (settings.CoreSettings.toggleAllOff)
-                settings.ToggleAll(false);
             if (RootWindow != null)
                 RootWindow.GetSettings(listingStandard);
             listingStandard.Gap();

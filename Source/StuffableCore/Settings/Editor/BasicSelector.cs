@@ -9,46 +9,64 @@ using Verse;
 
 namespace StuffableCore.Settings.Editor
 {
-    public class IngredientSelector : BaseModule
+    public class BasicSelector : BaseModule
     {
-        private static string searchText = "";
-        private static ICarousel ingredientsInnerWindow;
+        private string title;
+        protected string searchText = "";
+        private ICarousel innerWindow;
 
-        private static int carouselIndex = 0;
-        private static int carouselListSize = 10;
+        protected int carouselIndex = 0;
+        protected int carouselListSize = 10;
 
-        public static int CarouselIndexMax
+        public int CarouselIndexMax
         {
             get
             {
-                return Selected.ingredientStateFilterSize / carouselListSize;
+                return innerWindow.MaxFilterSize() / carouselListSize;
             }
         }
 
-        public IngredientSelector(StuffableCategorySettings selected) : base(selected)
+        protected ICarousel InnerWindow { get => innerWindow; set => innerWindow = value; }
+
+        public BasicSelector(StuffableCategorySettings selected) : base(selected)
         {
 
+        }
+
+        public BasicSelector(ICarousel innerWindow, StuffableCategorySettings selected) : this(selected)
+        {
+            InnerWindow = innerWindow;
+        }
+
+        public BasicSelector(string title, ICarousel innerWindow, StuffableCategorySettings selected) : this(innerWindow, selected)
+        {
+            this.title = title;
         }
 
         public override void GetSettings(Listing_Standard listing_Standard)
         {
-            listing_Standard.Label("Ingredient Selectinator".Colorize(Color.green), tooltip: "Remove ingredient from recipe.");
+            listing_Standard.Label(title);
             listing_Standard.GapLine();
             searchText = listing_Standard.TextEntryLabeled("Search? ", searchText);
             if (!searchText.NullOrEmpty())
-                ingredientsInnerWindow.Search(searchText, out carouselIndex);
+            {
+                int oldIndex = carouselIndex;
+                innerWindow.Search(searchText, out carouselIndex);
+                if(oldIndex != carouselIndex)
+                    innerWindow.ChangeIndex(carouselIndex);
+            }
             listing_Standard.Gap();
 
             Rect rect = listing_Standard.GetRect(250);
-            if (ingredientsInnerWindow == null)
-                ingredientsInnerWindow = new IngredientLister(Selected, carouselListSize);
-            DoInner(ingredientsInnerWindow, new Listing_Standard(), new Rect(rect.x, rect.y, rect.width, rect.height));
+
+            if (innerWindow != null)
+                DoInner(innerWindow, new Listing_Standard(), new Rect(rect.x, rect.y, rect.width, rect.height));
 
             Rect selectorRect = listing_Standard.GetRect(30);
             DoInner(new Listing_Standard(), new Rect(selectorRect.x, selectorRect.y + 5, selectorRect.width, selectorRect.height));
         }
 
-        private static void DoInner(ICarousel innerWindow, Listing_Standard inner, Rect rect)
+        private void DoInner(ICarousel innerWindow, Listing_Standard inner, Rect rect)
         {
             Widgets.DrawMenuSection(rect);
             Rect innerRect = rect;
@@ -56,12 +74,11 @@ namespace StuffableCore.Settings.Editor
             innerRect.y += 5;
             innerRect.width -= 10;
             inner.Begin(innerRect);
-            if (innerWindow != null)
-                innerWindow.GetSettings(inner);
+            innerWindow?.GetSettings(inner);
             inner.End();
         }
 
-        private static void DoInner(Listing_Standard inner, Rect rect)
+        private void DoInner(Listing_Standard inner, Rect rect)
         {
             Widgets.DrawMenuSection(rect);
             float width = rect.width / 3;
@@ -70,18 +87,18 @@ namespace StuffableCore.Settings.Editor
             DoRSection(inner, new Rect(rect.x + (width * 2), rect.y, width, rect.height));
         }
 
-        private static void DoLSection(Listing_Standard inner, Rect rect)
+        private void DoLSection(Listing_Standard inner, Rect rect)
         {
             inner.Begin(rect);
             if (inner.ButtonText("◄"))
             {
                 carouselIndex = Math.Max(--carouselIndex, 0);
-                ingredientsInnerWindow.ChangeIndex(carouselIndex);
+                innerWindow.ChangeIndex(carouselIndex);
             }
             inner.End();
         }
 
-        private static void DoCSection(Listing_Standard inner, Rect rect)
+        private void DoCSection(Listing_Standard inner, Rect rect)
         {
             Rect center = rect;
             center.x += 25;
@@ -92,13 +109,13 @@ namespace StuffableCore.Settings.Editor
             inner.End();
         }
 
-        private static void DoRSection(Listing_Standard inner, Rect rect)
+        private void DoRSection(Listing_Standard inner, Rect rect)
         {
             inner.Begin(rect);
             if(inner.ButtonText("►"))
             {
                 carouselIndex = Math.Min(++carouselIndex, CarouselIndexMax);
-                ingredientsInnerWindow.ChangeIndex(carouselIndex);
+                innerWindow.ChangeIndex(carouselIndex);
             }
             inner.End();
         }

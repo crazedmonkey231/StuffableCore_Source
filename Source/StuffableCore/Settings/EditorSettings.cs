@@ -111,7 +111,7 @@ namespace StuffableCore.Settings
             });
         }
 
-        public override void ApplyStuffCategoryValues(IEnumerable<StuffCategoryDef> cacheStuffCategoryDef, ThingDef thingDef)
+        public override void ApplyUpdate(IEnumerable<StuffCategoryDef> cacheStuffCategoryDef, ThingDef thingDef)
         {
             if (!ThingDefSettingsCache.TryGetValue(thingDef.defName, out StuffableCategorySettings scs))
                 return;
