@@ -85,8 +85,7 @@ namespace StuffableCore.Settings.Editor
             rect.y += 5;
             rect.width -= 10;
             inner.Begin(rect);
-            if(innerWindow != null)
-                innerWindow.GetSettings(inner);
+            innerWindow?.GetSettings(inner);
             inner.End();
         }
 

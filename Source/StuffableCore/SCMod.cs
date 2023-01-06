@@ -233,7 +233,6 @@ namespace StuffableCore
             listingStandard.Gap();
             listingStandard.End();
             base.DoSettingsWindowContents(inRect);
-            settings.Write();
         }
 
         public override string SettingsCategory()
